@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# cache
+hf_models
+
+# outputs
+*.onnx
+*.gguf
+*.log
+*.zip
+*.tar.*
+gext_converted
+mixtex_converted
