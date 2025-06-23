@@ -3749,7 +3749,7 @@ class GexTQwenVisionModel(MmprojModel):
         model_type = self.global_config["model_type"]
         if model_type == "gext":
             self.gguf_writer.add_clip_projector_type(gguf.VisionProjectorType.GOTVARY)
-            fullatt_block_indexes = hparams.get("fullatt_block_indexes")
+            fullatt_block_indexes = hparams.get("fullatt_block_indexes",[2,5,8,11])
             n_wa_pattern = fullatt_block_indexes[0] + 1
             # validate n_wa_pattern
             for i in range(1, len(fullatt_block_indexes)):
