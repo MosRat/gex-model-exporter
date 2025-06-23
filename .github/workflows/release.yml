@@ -23,7 +23,9 @@ jobs:
         shell: pwsh
 
       - name: Zip MixTex converted model
-        run: Compress-Archive -Path ./mixtex_converted -DestinationPath ./mixtex_converted.zip
+        run: |
+          Remove-Item -Path ./mixtex_converted/mixtex-dec_fp32.gguf
+          Compress-Archive -Path ./mixtex_converted -DestinationPath ./mixtex_converted.zip
         working-directory: .
         shell: pwsh
 
@@ -52,7 +54,9 @@ jobs:
         shell: pwsh
 
       - name: Zip GexT converted model
-        run: Compress-Archive -Path ./gext_converted -DestinationPath ./gext_converted.zip
+        run: |
+          Remove-Item -Path ./gext_converted/gext_fp32.gguf
+          Compress-Archive -Path ./gext_converted -DestinationPath ./gext_converted.zip
         working-directory: .
         shell: pwsh
 
