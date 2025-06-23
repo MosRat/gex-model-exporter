@@ -121,12 +121,13 @@ jobs:
           name: mixtex_ui_cpu
           path: ./ui_pack/mixtex_ui_cpu.zip   
 
-      - name: Download libgex DLLs
+      - name: Download libgex DLLs (Vulkan)
         run: |
           $release = (Invoke-RestMethod -Uri "https://api.github.com/repos/MosRat/llama.cpp/releases/latest").tag_name
           $url = "https://github.com/MosRat/llama.cpp/releases/download/$release/libgex-vulkan-bin.zip"
           Invoke-WebRequest -Uri $url -OutFile "libgex.zip"
           Remove-Item -Path .\libgex.dll
+          Remove-Item -Path .\test_gex.exe
           Expand-Archive -Path libgex.zip -DestinationPath . 
           Move-Item -Path .\libgex.dll -Destination .
           Remove-Item -Path libgex.zip
@@ -134,16 +135,16 @@ jobs:
         working-directory: ./ui_pack
         shell: pwsh
 
-      - name: Package UI with PyInstaller
+      - name: Package UI with PyInstaller (Vulkan)
         run: uv run pyinstaller MixTeX.spec --noconfirm
         working-directory: ./ui_pack
 
-      - name: Zip UI executable
+      - name: Zip UI executable (Vulkan)
         run: Compress-Archive -Path .\dist\mixtex.exe -DestinationPath mixtex_ui_vulkan.zip
         working-directory: ./ui_pack
         shell: pwsh
 
-      - name: Upload UI artifact
+      - name: Upload UI artifact (Vulkan)
         uses: actions/upload-artifact@v4
         with:
           name: mixtex_ui_vulkan
