@@ -3,6 +3,8 @@ name: Convert Models and Package UI
 on:
   workflow_dispatch:
 
+permissions: write-all
+
 jobs:
   convert-mixtex:
     runs-on: windows-latest
@@ -160,16 +162,7 @@ jobs:
       - name: Get latest tag
         id: get_tag
         run: |
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          if [[ $latest_tag =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            major=${BASH_REMATCH[1]}
-            minor=${BASH_REMATCH[2]}
-            patch=${BASH_REMATCH[3]}
-            new_patch=$((patch + 1))
-            new_tag="v$major.$minor.$new_patch"
-          else
-            new_tag=v$(date +%Y-%m-%d)
-          fi
+          new_tag=v$(date +%Y-%m-%d)
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -188,7 +181,7 @@ jobs:
           files: |
             ./artifacts/mixtex_converted/mixtex_converted.zip
             ./artifacts/gext_converted/gext_converted.zip
-            ./artifacts/mixtex_ui/mixtex_ui_cpu.zip
-            ./artifacts/mixtex_ui/mixtex_ui_vulkan.zip
+            ./artifacts/mixtex_ui_cpu/mixtex_ui_cpu.zip
+            ./artifacts/mixtex_ui_vulkan/mixtex_ui_vulkan.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
