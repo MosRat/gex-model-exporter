@@ -45,7 +45,7 @@ jobs:
         working-directory: .
 
       - name: Convert GexT model
-        run: uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted --quant_type Q4_K_M
+        run: uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted --quant_type Q4_K_M --debug
         working-directory: .
 
       - name: Zip GexT converted model
