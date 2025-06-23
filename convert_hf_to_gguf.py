@@ -3714,7 +3714,9 @@ class GexTQwenForCausalLM(Qwen2Model):
 class GexTQwenVisionModel(MmprojModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        assert self.hparams_vision is not None
+        # assert self.hparams_vision is not None
+        if self.hparams_vision is None:
+            self.hparams_vision = {}
         self.hparams_vision["image_size"] = self.hparams_vision.get("image_size", 1024)
         # rename config.json values
         self.hparams_vision["num_attention_heads"] = self.hparams_vision.get(
