@@ -1,0 +1,184 @@
+name: Convert Models and Package UI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  convert-mixtex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync Python environment
+        run: uv sync
+        working-directory: .
+
+      - name: Convert MixTex model
+        run: uv run main.py --hf_model_path wzmmmm/MixTex_finetune --model_type mixtex --output_dir ./mixtex_converted --quant_type Q4_K_M
+        working-directory: .
+
+      - name: Zip MixTex converted model
+        run: zip -r mixtex_converted.zip mixtex_converted
+        working-directory: .
+
+      - name: Upload MixTex artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mixtex_converted
+          path: mixtex_converted.zip
+
+  convert-gext:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync Python environment
+        run: uv sync
+        working-directory: .
+
+      - name: Convert GexT model
+        run: uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted --quant_type Q4_K_M
+        working-directory: .
+
+      - name: Zip GexT converted model
+        run: zip -r gext_converted.zip gext_converted
+        working-directory: .
+
+      - name: Upload GexT artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gext_converted
+          path: gext_converted.zip
+
+  package-ui:
+    runs-on: windows-latest
+    needs: [convert-mixtex]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync Python environment for UI
+        run: uv sync
+        working-directory: ./ui_pack
+
+      - name: Download MixTex artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mixtex_converted
+          path: ./ui_pack
+
+      - name: Unzip MixTex converted model
+        run: |
+          Expand-Archive -Path mixtex_converted.zip -DestinationPath .
+          New-Item -ItemType Directory -Path .\gex_model
+          Move-Item -Path .\mixtex_converted\* -Destination .\gex_model
+        working-directory: ./ui_pack
+        shell: pwsh
+
+      - name: Download libgex DLLs
+        run: |
+          $release = (Invoke-RestMethod -Uri "https://api.github.com/repos/MosRat/llama.cpp/releases/latest").tag_name
+          $url = "https://github.com/MosRat/llama.cpp/releases/download/$release/libgex-cpu-bin.zip"
+          Invoke-WebRequest -Uri $url -OutFile "libgex.zip"
+          Expand-Archive -Path libgex.zip -DestinationPath .
+          Move-Item -Path .\libgex.dll -Destination .
+          Remove-Item -Path libgex.zip
+
+        working-directory: ./ui_pack
+        shell: pwsh
+
+      - name: Package UI with PyInstaller
+        run: uv run pyinstaller MixTeX.spec --noconfirm
+        working-directory: ./ui_pack
+
+      - name: Zip UI executable
+        run: Compress-Archive -Path .\dist\mixtex.exe -DestinationPath mixtex_ui_cpu.zip
+        working-directory: ./ui_pack
+        shell: pwsh
+
+      - name: Upload UI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mixtex_ui_cpu
+          path: ./ui_pack/mixtex_ui_cpu.zip   
+
+      - name: Download libgex DLLs
+        run: |
+          $release = (Invoke-RestMethod -Uri "https://api.github.com/repos/MosRat/llama.cpp/releases/latest").tag_name
+          $url = "https://github.com/MosRat/llama.cpp/releases/download/$release/libgex-vulkan-bin.zip"
+          Invoke-WebRequest -Uri $url -OutFile "libgex.zip"
+          Expand-Archive -Path libgex.zip -DestinationPath .
+          Move-Item -Path .\libgex.dll -Destination .
+          Remove-Item -Path libgex.zip
+
+        working-directory: ./ui_pack
+        shell: pwsh
+
+      - name: Package UI with PyInstaller
+        run: uv run pyinstaller MixTeX.spec --noconfirm
+        working-directory: ./ui_pack
+
+      - name: Zip UI executable
+        run: Compress-Archive -Path .\dist\mixtex.exe -DestinationPath mixtex_ui_vulkan.zip
+        working-directory: ./ui_pack
+        shell: pwsh
+
+      - name: Upload UI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mixtex_ui_vulkan
+          path: ./ui_pack/mixtex_ui_vulkan.zip
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [convert-mixtex, convert-gext, package-ui]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          if [[ $latest_tag =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            major=${BASH_REMATCH[1]}
+            minor=${BASH_REMATCH[2]}
+            patch=${BASH_REMATCH[3]}
+            new_patch=$((patch + 1))
+            new_tag="v$major.$minor.$new_patch"
+          else
+            new_tag=v$(date +%Y-%m-%d)
+          fi
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_tag.outputs.new_tag }}
+          name: Release ${{ steps.get_tag.outputs.new_tag }}
+          draft: false
+          prerelease: false
+          files: |
+            ./artifacts/mixtex_converted/mixtex_converted.zip
+            ./artifacts/gext_converted/gext_converted.zip
+            ./artifacts/mixtex_ui/mixtex_ui_cpu.zip
+            ./artifacts/mixtex_ui/mixtex_ui_vulkan.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
