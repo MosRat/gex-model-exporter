@@ -18,8 +18,8 @@
 1.  **安装 uv**:
     如果你还没有安装 `uv`，请参照 [官方指南](https://github.com/astral-sh/uv) 进行安装。
 
-2.  **准备二进制文件**:
-    本项目依赖 `llama.cpp` 的量化工具。请确保已根据你的操作系统，将预编译的二进制文件（如 `llama-quantize` 或 `llama-quantize.exe`）放置在项目根目录下的 `bin` 文件夹中。
+2.  **已经准备好的二进制文件**:
+    本项目依赖特定fork `llama.cpp` 的量化工具。已根据操作系统，将预编译的二进制文件（如 `llama-quantize` 或 `llama-quantize.exe`）放置在项目根目录下的 `bin` 文件夹中。
 
     ```
     .
@@ -46,7 +46,7 @@
 此命令将从 Hugging Face 下载 `MixTex/base_ZhEn`，将其编码器转换为 ONNX，解码器转换为 GGUF (Q4_K_M 量化)，并保存到 `./mixtex_converted` 目录。
 
 ```bash
-uv run python main.py --hf_model_path MixTex/base_ZhEn --model_type mixtex --output_dir ./mixtex_converted
+uv run main.py --hf_model_path MixTex/base_ZhEn --model_type mixtex --output_dir ./mixtex_converted
 ```
 
 ### 示例 2: 转换 GexT 模型
@@ -54,7 +54,7 @@ uv run python main.py --hf_model_path MixTex/base_ZhEn --model_type mixtex --out
 此命令将下载 `MosRat/GexT_V1`，将其解码器和 `mmproj` 转换为 GGUF 格式（解码器进行 Q4_K_M 量化），并保存到 `./gext_converted` 目录。
 
 ```bash
-uv run python main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted
+uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted
 ```
 
 ### 参数说明
