@@ -3718,6 +3718,7 @@ class GexTQwenVisionModel(MmprojModel):
         if self.hparams_vision is None:
             self.hparams_vision = {}
         self.hparams_vision["image_size"] = self.hparams_vision.get("image_size", 1024)
+        self.hparams_vision["patch_size"] = self.hparams_vision.get("patch_size", 16)
         # rename config.json values
         self.hparams_vision["num_attention_heads"] = self.hparams_vision.get(
             "num_heads", 12
