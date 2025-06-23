@@ -1,0 +1,1 @@
+图标和main.py的UI代码来自https://github.com/RQLuo/MixTeX-Latex-OCR/blob/main/mixtexgui/mixtex_ui.py，遵循AGPL3.0许可

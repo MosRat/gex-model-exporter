@@ -1,3 +1,4 @@
+# modified from https://github.com/RQLuo/MixTeX-Latex-OCR/blob/main/mixtexgui/mixtex_ui.py
 # Renqing Luo
 # Commercial use prohibited
 

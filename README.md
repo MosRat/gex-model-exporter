@@ -1,7 +1,7 @@
 
-# GexT/MixTex 模型转换工具 gext_converted
+# GexT/MixTex 模型转换与打包工具
 
-本项目提供了一个命令行工具，用于将 Hugging Face 上的 `MixTex` 和 `GexT` 模型转换为适用于高效推理的格式（ONNX 和 GGUF），并对模型进行量化。项目环境和依赖由 `uv` 进行管理。
+本项目提供了一个命令行工具，用于将 Hugging Face 上的 `MixTex` 和 `GexT` 模型转换为适用于高效推理的格式（ONNX 和 GGUF），并对模型进行量化。项目环境和依赖由 `uv` 进行管理。在 `ui_pack` 子文件夹中提供了打包为[Mixtex UI](https://github.com/RQLuo/MixTeX-Latex-OCR)的代码，通过Github 工作流发布Windows的Release。
 
 ## ✨ 功能特性
 
@@ -64,3 +64,14 @@ uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./g
 -   `--output_dir`: 指定转换后模型的输出目录 (默认为 `./converted_models`)。
 -   `--quant_type`: 指定 GGUF 的量化类型 (默认为 `Q4_K_M`)。
 -   `--debug`: 启用调试模式，会打印更详细的日志信息。
+
+## 许可证
+
+- 本仓库**除以下部分外**，均采用 **[MIT 许可证](LICENSE)**。
+- 以下目录/文件采用 **[AGPL-3.0 许可证](ui_pack/LICENSE-AGPL)**：
+  - `ui_pack/`
+  - mixtex原模型
+
+### 注意事项
+- MIT 许可的代码可自由使用，但需保留版权声明。
+- **AGPL-3.0 代码的修改或衍生作品需开源**（根据 AGPL 要求）。

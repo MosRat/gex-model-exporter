@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+
+# modified from https://github.com/RQLuo/MixTeX-Latex-OCR/blob/main/mixtexgui/mixtex_ui.spec
 import os
 
 # 创建DPI感知的清单文件 (保持不变)
