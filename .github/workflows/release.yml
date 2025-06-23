@@ -122,7 +122,8 @@ jobs:
           $release = (Invoke-RestMethod -Uri "https://api.github.com/repos/MosRat/llama.cpp/releases/latest").tag_name
           $url = "https://github.com/MosRat/llama.cpp/releases/download/$release/libgex-vulkan-bin.zip"
           Invoke-WebRequest -Uri $url -OutFile "libgex.zip"
-          Expand-Archive -Path libgex.zip -DestinationPath .
+          Remove-Item -Path .\libgex.dll
+          Expand-Archive -Path libgex.zip -DestinationPath . 
           Move-Item -Path .\libgex.dll -Destination .
           Remove-Item -Path libgex.zip
 
