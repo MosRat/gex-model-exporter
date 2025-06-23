@@ -30,6 +30,14 @@ import warnings
 from pathlib import Path
 import argparse
 import sys
+import io
+import os
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+os.environ["PYTHONIOENCODING"] = "utf-8"
+sys.stdin.reconfigure(encoding="utf-8")
+sys.stdout.reconfigure(encoding="utf-8")
+print("包含🚀的文本")
 
 warnings.filterwarnings("ignore")
 
