@@ -60,7 +60,7 @@ def run_command(cmd, debug=False, message="", success_message=""):
     else:
         if message:
             print("❌")
-        print(f"错误：命令执行失败: {' '.join(cmd)}")
+        print(f"错误：命令执行失败: {' '.join(cmd)}\n 返回 {result.returncode}")
         if not debug:
             if result.stdout:
                 print("STDOUT:\n", result.stdout)

@@ -4,64 +4,63 @@ on:
   workflow_dispatch:
 
 jobs:
-  convert-mixtex:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+convert-mixtex:
+  runs-on: windows-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
 
-      - name: Sync Python environment
-        run: uv sync
-        working-directory: .
+    - name: Sync Python environment
+      run: uv sync
+      working-directory: .
 
-      - name: Convert MixTex model
-        run: uv run main.py --hf_model_path wzmmmm/MixTex_finetune --model_type mixtex --output_dir ./mixtex_converted --quant_type Q4_K_M
-        working-directory: .
+    - name: Convert MixTex model
+      run: uv run main.py --hf_model_path wzmmmm/MixTex_finetune --model_type mixtex --output_dir ./mixtex_converted --quant_type Q4_K_M
+      working-directory: .
+      shell: pwsh
 
-      - name: Zip MixTex converted model
-        run: zip -r mixtex_converted.zip mixtex_converted
-        working-directory: .
+    - name: Zip MixTex converted model
+      run: Compress-Archive -Path ./mixtex_converted -DestinationPath ./mixtex_converted.zip
+      working-directory: .
+      shell: pwsh
 
-      - name: Upload MixTex artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mixtex_converted
-          path: mixtex_converted.zip
+    - name: Upload MixTex artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mixtex_converted
+        path: mixtex_converted.zip
 
-  convert-gext:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+convert-gext:
+  runs-on: windows-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
 
-      - name: Sync Python environment
-        run: uv sync
-        working-directory: .
-      - name: Test llama-quantize
-        working-directory: .
-        run: |
-          ldd bin/llama-quantize
-          bin/llama-quantize --help
+    - name: Sync Python environment
+      run: uv sync
+      working-directory: .
 
-      - name: Convert GexT model
-        run: uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted --quant_type Q4_K_M --debug
-        working-directory: .
+    - name: Convert GexT model
+      run: uv run main.py --hf_model_path MosRat/GexT_V1 --model_type gext --output_dir ./gext_converted --quant_type Q4_K_M --debug
+      working-directory: .
+      shell: pwsh
 
-      - name: Zip GexT converted model
-        run: zip -r gext_converted.zip gext_converted
-        working-directory: .
+    - name: Zip GexT converted model
+      run: Compress-Archive -Path ./gext_converted -DestinationPath ./gext_converted.zip
+      working-directory: .
+      shell: pwsh
 
-      - name: Upload GexT artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gext_converted
-          path: gext_converted.zip
+    - name: Upload GexT artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gext_converted
+        path: gext_converted.zip
 
   package-ui:
     runs-on: windows-latest
