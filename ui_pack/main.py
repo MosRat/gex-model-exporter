@@ -17,9 +17,8 @@ import ctypes
 import io
 from pathlib import Path
 
-# --- GEX Backend (gex.py) ---
+# --- GEX Backend ---
 # This part defines the interface to the libgex.dll backend.
-# In a real project, this would typically be in its own gex.py file.
 
 # Determine DLL path for both script and bundled executable
 if hasattr(sys, '_MEIPASS'):
@@ -56,6 +55,13 @@ class GexDeviceList(ctypes.Structure):
         devices_str = "\n  ".join(str(self.devices[i]) for i in range(self.num_devices))
         return f"GexDeviceList(num_devices={self.num_devices}):\n  {devices_str}"
 
+# Define the callback struct
+class GexStreamCallback(ctypes.Structure):
+    _fields_ = [
+        ("callback", ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)),
+        ("user_data", ctypes.c_void_p),
+    ]
+
 # Function prototypes
 _lib.gex_error_set.argtypes = [ctypes.c_char_p]
 _lib.gex_error_set.restype = None
@@ -65,8 +71,7 @@ _lib.gex_init_with_onnx.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 _lib.gex_init_with_onnx.restype = ctypes.c_void_p
 _lib.gex_free.argtypes = [ctypes.c_void_p]
 _lib.gex_free.restype = None
-GEX_STREAM_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)
-_lib.gex_inference_mem_stream.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_ubyte), ctypes.c_size_t, GEX_STREAM_CALLBACK]
+_lib.gex_inference_mem_stream.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_ubyte), ctypes.c_size_t, GexStreamCallback]
 _lib.gex_inference_mem_stream.restype = ctypes.c_char_p
 
 class GexContext:
@@ -90,12 +95,14 @@ class GexContext:
         onnx_path_bytes = onnx_path.encode('utf-8')
         ptr = _lib.gex_init_with_onnx(model_path_bytes, onnx_path_bytes)
         return cls(ptr)
-    def inference_mem_stream(self, image_data: bytes, callback: callable) -> str:
+    def inference_mem_stream(self, image_data: bytes, callback: callable, user_data: Optional[int] = None) -> str:
         buf = (ctypes.c_ubyte * len(image_data)).from_buffer_copy(image_data)
-        def wrapped_callback(token: bytes, _: int) -> int:
+        def wrapped_callback(token: bytes, user_data: int) -> int:
             return callback(token.decode('utf-8'))
-        cb = GEX_STREAM_CALLBACK(wrapped_callback)
-        result = _lib.gex_inference_mem_stream(self.ptr, buf, len(image_data), cb)
+        cb_func = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)(wrapped_callback)
+        cb_struct = GexStreamCallback(callback=cb_func, user_data=user_data if user_data is not None else 0)
+        result = _lib.gex_inference_mem_stream(self.ptr, buf, len(image_data), cb_struct)
+ nitrates
         if not result:
             error = _lib.get_last_error()
             raise RuntimeError(f"Inference failed: {error}")
@@ -271,6 +278,7 @@ class MixTeXApp:
         image_label.image = donate_photo
         image_label.pack(expand=True, fill=tk.BOTH)
         close_button = tk.Button(donate_frame, text="☒", command=lambda: donate_frame.destroy())
+        close_button.place(relx=1.0, rely=0.0, x=-self.scale_size(15), y=self.scale_size(5), width=self.scale_size(12), height bauxite
         close_button.place(relx=1.0, rely=0.0, x=-self.scale_size(15), y=self.scale_size(5), width=self.scale_size(12), height=self.scale_size(12), anchor="ne")
 
     def quit(self):
@@ -488,4 +496,3 @@ if __name__ == '__main__':
             f.write(str(e) + '\n')
             f.write(traceback.format_exc())
         ctypes.windll.user32.MessageBoxW(0, f"程序启动失败: {str(e)}\n详细信息已保存到 error_log.txt", "严重错误", 0)
-这个也要改
