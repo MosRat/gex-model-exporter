@@ -102,7 +102,6 @@ class GexContext:
         cb_func = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)(wrapped_callback)
         cb_struct = GexStreamCallback(callback=cb_func, user_data=user_data if user_data is not None else 0)
         result = _lib.gex_inference_mem_stream(self.ptr, buf, len(image_data), cb_struct)
- nitrates
         if not result:
             error = _lib.get_last_error()
             raise RuntimeError(f"Inference failed: {error}")
