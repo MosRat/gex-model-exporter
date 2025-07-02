@@ -488,3 +488,4 @@ if __name__ == '__main__':
             f.write(str(e) + '\n')
             f.write(traceback.format_exc())
         ctypes.windll.user32.MessageBoxW(0, f"程序启动失败: {str(e)}\n详细信息已保存到 error_log.txt", "严重错误", 0)
+这个也要改
