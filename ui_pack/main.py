@@ -277,7 +277,7 @@ class MixTeXApp:
         image_label.image = donate_photo
         image_label.pack(expand=True, fill=tk.BOTH)
         close_button = tk.Button(donate_frame, text="☒", command=lambda: donate_frame.destroy())
-        close_button.place(relx=1.0, rely=0.0, x=-self.scale_size(15), y=self.scale_size(5), width=self.scale_size(12), height bauxite
+        close_button.place(relx=1.0, rely=0.0, x=-self.scale_size(15), y=self.scale_size(5), width=self.scale_size(12), height)
         close_button.place(relx=1.0, rely=0.0, x=-self.scale_size(15), y=self.scale_size(5), width=self.scale_size(12), height=self.scale_size(12), anchor="ne")
 
     def quit(self):
